@@ -14,24 +14,42 @@
         options = $.extend(defaults,options);
     
         var grid = [];        var animate;
-        function withinBounds(i){ return (i >=0 && i<numPieces); }
-        function checkAdjacentSquares(x,y){
-            if(withinBounds(x+1)){
-                // TODO: Hate the below. Refactor.
-                if(grid[y][x+1].hasClass("blank")) return {x : x+1, y : y};
+        function withinBounds(i){ return (i >=0 && i<numPieces); }
+        
+        /**
+         * Check for a blank square in the squares adjacent to the given x,y.
+         * Diagonals are not allowed.
+         * 
+         * @param x
+         * @param y
+         * 
+         * @return null if no blank square, {x,y} otherwise
+         */
+        function findAdjacentBlankSquare( x, y ) {
+            var blankSquare = null; // Initialise to null. We'll never set this if we don't find a square.
+            
+            if ( withinBounds( x + 1 ) ) {
+                if ( grid[ y ][ x + 1 ].hasClass( "blank" ) ) {
+                    blankSquare = { x : x + 1, y : y };
+                }
+            }
+            
+            if ( withinBounds( x - 1 ) ) {
+                if ( grid[ y ][ x - 1 ].hasClass( "blank" ) ) {
+                    blankSquare = { x : x - 1, y : y };
+                }            }
+            
+            if ( withinBounds( y + 1 ) ) {
+                if ( grid[ y + 1 ][ x ].hasClass( "blank" ) ) {
+                    blankSquare = { x : x, y : y + 1 };
+                }
             }
-            if(withinBounds(x-1)){
-                // TODO: Hate the below. Refactor.
-                if(grid[y][x-1].hasClass("blank")) return {x : x-1, y : y};
+            if ( withinBounds( y - 1 ) ) {
+                if ( grid[ y - 1][ x ].hasClass( "blank" ) ) {
+                    blankSquare = { x : x, y : y - 1 };
+                }
             }
-            if(withinBounds(y+1)){
-                // TODO: Hate the below. Refactor.
-                if(grid[y+1][x].hasClass("blank")) return {x : x, y : y + 1};
-            }
-            if(withinBounds(y-1)){                // TODO: Hate the below. Refactor.
-                if(grid[y-1][x].hasClass("blank")) return {x : x, y : y - 1};
-            }
-            return false;
+            return blankSquare;
         }
 
         function swapSquares(source, target){
@@ -65,8 +83,8 @@
             var x = $(this).data("x");
             var y = $(this).data("y");
             
-            blankSquare = checkAdjacentSquares( x, y );
-            if ( blankSquare !== false ) {
+            blankSquare = findAdjacentBlankSquare( x, y );
+            if ( blankSquare !== null ) {
                 swapSquares({x : x, y : y}, {x : blankSquare.x, y : blankSquare.y});
             }        };
         
