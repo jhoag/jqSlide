@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script type="text/javascript" src="../src/jqSlide.js"></script>
+
+        <script type="text/javascript">
+            $(function(){
+                $(".shuf").click(function(){
+                    $(".myPuzzle").shufflePuzzle({animate:false,pieces:2});
+                });
+    
+                $(".shufb").click(function(){
+                    $(".myPuzzleB").shufflePuzzle();
+                });
+            });
+        </script>
+    </head>
+    <body>
+
+        <span style="border:5px solid #33FF33; background-color:#66FF66" class="shufb">Shuffle</span> <br /> <br />
+
+        <div>
+            <img src="demo_image.jpg" class="myPuzzleB" />
+        </div>
+    </body>
+</html>

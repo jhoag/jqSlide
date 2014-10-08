@@ -1,12 +1,9 @@
-/********
-* TODO:
-* Animated Sliding
-* Customizable number of slices
-* Fire callback on win state
-* Support multiple puzzle images per page
-*
-*
-*/
+// ==========================================================================
+// jqSlide
+// 
+// Originally authored 08/2009 by Jake Hoggans (http://www.jakehoggans.co.uk)
+// Maintained from 08/2014 (https://github.com/jhoag/jqSlide)
+// ==========================================================================
 (function($){
   $.fn.shufflePuzzle = function(options){
     var imageWidth, imageHeight, numPieces;
