@@ -6,21 +6,17 @@
         <script type="text/javascript">
             $(function(){
                 $(".shuf").click(function(){
-                    $(".myPuzzle").shufflePuzzle({animate:false,pieces:2});
-                });
-    
-                $(".shufb").click(function(){
-                    $(".myPuzzleB").shufflePuzzle();
+                    $(".myPuzzle").jqSlide();
                 });
             });
         </script>
     </head>
     <body>
 
-        <span style="border:5px solid #33FF33; background-color:#66FF66" class="shufb">Shuffle</span> <br /> <br />
+        <span style="border:5px solid #33FF33; background-color:#66FF66" class="shuf">Shuffle</span> <br /> <br />
 
         <div>
-            <img src="demo_image.jpg" class="myPuzzleB" />
+            <img src="demo_image.jpg" class="myPuzzle" />
         </div>
     </body>
 </html>
