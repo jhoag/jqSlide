@@ -4,7 +4,7 @@
 // Originally authored 08/2009 by Jake Hoggans (http://www.jakehoggans.co.uk)
 // Maintained from 08/2014 (https://github.com/jhoag/jqSlide)
 // ==========================================================================
-define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
+require( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
     $.fn.jqSlide = function( options ){        var imageWidth, imageHeight, numPieces;
         var pieceWidth, pieceHeight;
         var defaults = {
@@ -14,8 +14,18 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
         
         options = $.extend(defaults,options);
     
-        var grid = [];        var animate;
-        function withinBounds(i){ return (i >=0 && i<numPieces); }
+        var grid = [];        var animate;
+        
+        /**
+         * Check if a given coordinate (x or y) is within the bounds of the grid
+         *
+         * @param i The coordinate to check
+         * 
+         * @return true / false
+         */
+        function withinBounds( i ) {
+            return ( i >= 0 && i < numPieces );
+        }
         
         /**
          * Check for a blank square in the squares adjacent to the given x,y.
