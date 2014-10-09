@@ -4,7 +4,11 @@
 // Originally authored 08/2009 by Jake Hoggans (http://www.jakehoggans.co.uk)
 // Maintained from 08/2014 (https://github.com/jhoag/jqSlide)
 // ==========================================================================
-require( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
+require( [ "jqSlide" ], function( jqSlide ) {
+
+} );
+
+define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
     $.fn.jqSlide = function( options ){        var imageWidth, imageHeight, numPieces;
         var pieceWidth, pieceHeight;
         var defaults = {
