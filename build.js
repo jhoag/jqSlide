@@ -4,5 +4,8 @@
         jquery: "empty:",
     },
     name: "jqSlide",
-    out: "./dist/jqSlide.js"
+    out: "./dist/jqSlide.js",   
+    wrap : {
+        startFile : "LICENSE.txt"
+    }
 })
