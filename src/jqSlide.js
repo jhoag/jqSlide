@@ -111,6 +111,30 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
         }
         
         /**
+         * Is the puzzle in a solved state?
+         *
+         * @return True / false - is the puzzle in a solved state
+         */
+        function isSolved() {
+            var solved = true;
+            $.each( grid, function() {
+                $.each( this, function() {
+                    if ( ! this.isInOriginalSpace() ) {
+                        solved = false;
+                        return false;
+                    }
+                } );
+                
+                // We already know it isn't solved, so give up
+                if ( ! solved ) {
+                    return false;
+                }
+            } );
+            
+            return solved;
+        }
+        
+        /**
          * Event handler to be assigned to the grid dom object, detecting clicks on PuzzleSquares
          *
          * @param event The jQuery Event object
@@ -124,7 +148,9 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
                 if ( blankSquare !== null ) {
                     swapSquares( currentSquare.coordinate, blankSquare.coordinate );
                 }
-            }        };
+            }
+            
+            console.log( "Solved: " + ( isSolved()  ? "Yes" : "No" ) );        };
         
         /**
          * Shuffle the grid
