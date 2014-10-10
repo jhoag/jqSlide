@@ -68,6 +68,7 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
             
             return adjacentSquares;
         }
+        
         /**
          * Check for a blank square in the squares adjacent to the given x,y.
          * Diagonals are not allowed.
@@ -111,6 +112,55 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
         }
         
         /**
+         * Is the puzzle in a solved state?
+         *
+         * @return True / false - is the puzzle in a solved state
+         */
+        function isSolved() {
+            var solved = true;
+            $.each( grid, function() {
+                $.each( this, function() {
+                    if ( ! this.isInOriginalSpace() ) {
+                        solved = false;
+                        return false;
+                    }
+                } );
+                
+                // We already know it isn't solved, so give up
+                if ( ! solved ) {
+                    return false;
+                }
+            } );
+            
+            return solved;
+        }
+        
+        /**
+         * Fire the given hook.
+         * This function handles checking if the hook has been registered.
+         * Also handles an array of hooks
+         * 
+         * @param hook The name of the hook to be fired
+         */
+        function fireHook( hook ) {
+            // Check some hooks have been registered
+            if ( options.hooks ) {
+                // Check if at least one function has been registered for this hook
+                if ( options.hooks[ hook ] ) {
+                    if ( $.isArray( options.hooks[ hook ] ) ) {
+                        // With an array of hooks, call them all in order - stopping if one returns false
+                        $.each( options.hooks[ hook ], function ( func ) {
+                            return func();
+                        } );
+                    } else if ( typeof( options.hooks[ hook ] ) === "function" ) {
+                        // Otherwise, call the hook
+                        options.hooks[ hook ]();
+                    }
+                }
+            }
+        }
+        
+        /**
          * Event handler to be assigned to the grid dom object, detecting clicks on PuzzleSquares
          *
          * @param event The jQuery Event object
@@ -124,6 +174,10 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
                 if ( blankSquare !== null ) {
                     swapSquares( currentSquare.coordinate, blankSquare.coordinate );
                 }
+            }
+            
+            if ( isSolved() ) {
+                fireHook( "solved" );
             }        };
         
         /**
@@ -175,8 +229,6 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
                     var coordinate = { x : x, y : y };
                     
                     var obj = new PuzzleSquare( dimensions, coordinate, $(this).attr( "src" ) );
-
-           //         obj.bind( "click", moveSquare );
                     
                     grid[ x ].push( obj );
                 }

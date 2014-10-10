@@ -1,6 +1,7 @@
 define( [], function() {
     function PuzzleSquare( dimension, coordinate, imgsrc ) {
         this.dimension = dimension;
+        this._originalCoordinate = coordinate;
         this.coordinate = coordinate;
         this.imgsrc = imgsrc;
         this._isBlank = false;
@@ -54,6 +55,11 @@ define( [], function() {
     
     PuzzleSquare.prototype.addToDom = function ( $dom ) {
         $dom.append( this.dom );
+    }
+    
+    PuzzleSquare.prototype.isInOriginalSpace = function () {
+        return (    ( this.coordinate.x == this._originalCoordinate.x )
+                 && ( this.coordinate.y == this._originalCoordinate.y ) );
     }
     
     return PuzzleSquare;
