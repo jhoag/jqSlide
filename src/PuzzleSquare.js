@@ -6,27 +6,23 @@ define( [], function() {
         this._isBlank = false;
         
         // Create the DOM object to represent this puzzle square
-        var top = coordinate.y * this.dimension.height;
-        var left = coordinate.x * this.dimension.width;
+        var top = this.coordinate.y * this.dimension.height;
+        var left = this.coordinate.x * this.dimension.width;
         
         this.dom = $( "<div></div>" );
         
         //define CSS
-        this.dom.css({ "background-image"    : "url(" + imgsrc + ")",
-                  "background-position" : "-"+left+"px -"+top+"px",
-                  "position"            : "absolute",
-                  "border"              : "1px solid black",
-                  "top"                 : top+"px",
-                  "left"                : left+"px",
-                  "height"              : this.dimension.height,
-                  "width"               : this.dimension.width } );
+        this.dom.css( { "background-image"    : "url(" + imgsrc + ")",
+                        "background-position" : "-"+left+"px -"+top+"px",
+                        "position"            : "absolute",
+                        "border"              : "1px solid black",
+                        "top"                 : top+"px",
+                        "left"                : left+"px",
+                        "height"              : this.dimension.height,
+                        "width"               : this.dimension.width } );
 
         //set up datastore
-        this.dom.data( "x", this.coordinate.x );
-        this.dom.data( "y", this.coordinate.y );
-                        
-        // TODO dom.click(moveSquare);
-        // TODOgrid[y][x] = obj;
+        this.dom.data( "jqSlide-PuzzleSquare", this );
     }
 
     PuzzleSquare.prototype.makeBlank = function () {
@@ -54,8 +50,10 @@ define( [], function() {
         }
         
         this.coordinate = targetCoordinates;
-        this.dom.data( "x", this.coordinate.x );
-        this.dom.data( "y", this.coordinate.y );
+    }
+    
+    PuzzleSquare.prototype.addToDom = function ( $dom ) {
+        $dom.append( this.dom );
     }
     
     return PuzzleSquare;

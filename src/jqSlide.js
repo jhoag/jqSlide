@@ -4,60 +4,83 @@
 // Originally authored 08/2009 by Jake Hoggans (http://www.jakehoggans.co.uk)
 // Maintained from 08/2014 (https://github.com/jhoag/jqSlide)
 // ==========================================================================
-
-
 require( [ "jqSlide" ] );
 
 define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
-    $.fn.jqSlide = function( options ){        var imageWidth, imageHeight, numPieces;
-        var pieceWidth, pieceHeight;
+    $.fn.jqSlide = function( options ){        var imageWidth, imageHeight;
+        var pieceWidth, pieceHeight;
+                   
+        var grid = [];
+        
         var defaults = {
             animate : true,
             pieces  : 5
         };
         
-        options = $.extend(defaults,options);
+        options = $.extend( defaults, options );
     
-        var grid = [];        var animate;
-        
+        // Parse the pieces option
+        if ( ! $.isArray( options.pieces ) ) {
+            // pieces isn't an array, so we want a square image, make it an array
+            options.pieces = [ options.pieces, options.pieces ];
+        }
+
         /**
-         * Check if a given coordinate (x or y) is within the bounds of the grid
+         * Check if a given coordinate is within the bounds of the grid
          *
-         * @param i The coordinate to check
+         * @param x The x coordinate to check
+         * @param y The y coordinate to check
          * 
          * @return true / false
          */
-        function withinBounds( i ) {
-            return ( i >= 0 && i < numPieces );
+        function withinBounds( x, y ) {
+            return (    ( x >= 0 && x < options.pieces[ 0 ] )
+                     && ( y >= 0 && y < options.pieces[ 1 ] ) )
         }
         
+        /**
+         * Get a list of squares adjacent to the given x,y.
+         * This does not include diagonal squares.
+         *
+         * @param x The x coordinate to check
+         * @param y The y coordinate to check
+         *
+         * @return An array of PuzzleSquares adjacent to the given coordinate
+         */
+        function getAdjacentSquares( x, y ) {
+            var adjacentSquares = [];
+            
+            if ( withinBounds( x + 1, y ) ) {
+                adjacentSquares.push( grid[ x + 1 ][ y ] );
+            }
+            
+            if ( withinBounds( x - 1, y ) ) {
+                adjacentSquares.push( grid[ x - 1 ][ y ] );
+            }
+            
+            if ( withinBounds( x, y + 1 ) ) {
+                adjacentSquares.push( grid[ x ][ y + 1 ] );
+            }
+
+            if ( withinBounds( x, y - 1 ) ) {
+                adjacentSquares.push( grid[ x ][ y - 1 ] );
+            }
+            
+            return adjacentSquares;
+        }
         /**
          * Check for a blank square in the squares adjacent to the given x,y.
          * Diagonals are not allowed.
          * 
-         * @param x
-         * @param y
+         * @param x The x coordinate to check
+         * @param y The y coordinate to check
          * 
          * @return null if no blank square, {x,y} otherwise
          */
         function findAdjacentBlankSquare( x, y ) {
             var blankSquare = null; // Initialise to null. We'll never set this if we don't find a square.
             
-            var squaresToCheck = []; // An array of adjacent squares we want to check
-
-            if ( withinBounds( x + 1 ) ) {
-                squaresToCheck.push( grid[ y ][ x + 1 ] );
-            }
-            
-            if ( withinBounds( x - 1 ) ) {
-                squaresToCheck.push( grid[ y ][ x - 1 ] );            }
-            
-            if ( withinBounds( y + 1 ) ) {
-                squaresToCheck.push( grid[ y + 1 ][ x ] );
-            }
-            if ( withinBounds( y - 1 ) ) {
-                squaresToCheck.push( grid[ y - 1 ][ x ] );
-            }
+            var squaresToCheck = getAdjacentSquares( x, y );
             
             //TODO is it better to do this without forcing this closure?
             $.each( squaresToCheck, function( i, square ) {
@@ -70,83 +93,97 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
             return blankSquare;
         }
 
-        function swapSquares(source, target){
+        /**
+         * Swap two the PuzzleSquares at two given x,y coordinate objects
+         *
+         * @param source The source coordinate for the swap
+         * @param target The target coordinate for the swap
+         */
+        function swapSquares( source, target ) {
             // First, tell the squares to move            
-            grid[ source.y ][ source.x ].move( target, animate );
-            grid[ target.y ][ target.x ].move( source, animate );
+            grid[ source.x ][ source.y ].move( target, options.animate );
+            grid[ target.x ][ target.y ].move( source, options.animate );
             
             // Next, update the grid collection
-            var tmp = grid[target.y][target.x];
-            grid[target.y][target.x] = grid[source.y][source.x];
-            grid[source.y][source.x] = tmp;
-        }
-        var moveSquare = function(){
+            var tmp = grid[ target.x ][ target.y ];
+            grid[ target.x ][ target.y ] = grid[ source.x ][ source.y ];
+            grid[ source.x ][ source.y ] = tmp;
+        }
+        
+        /**
+         * Event handler to be assigned to the grid dom object, detecting clicks on PuzzleSquares
+         *
+         * @param event The jQuery Event object
+         */
+        function moveSquare( event ){
             var blankSquare;
-            var x = $(this).data("x");
-            var y = $(this).data("y");
-            
-            blankSquare = findAdjacentBlankSquare( x, y );
-            if ( blankSquare !== null ) {
-                swapSquares({x : x, y : y}, blankSquare.coordinate );
+            var currentSquare = $( event.target ).data( "jqSlide-PuzzleSquare" );
+
+            if ( typeof( currentSquare ) !== "undefined" ) {
+                blankSquare = findAdjacentBlankSquare( currentSquare.coordinate.x, currentSquare.coordinate.y );
+                if ( blankSquare !== null ) {
+                    swapSquares( currentSquare.coordinate, blankSquare.coordinate );
+                }
             }        };
         
-        function shuffle(blankSquare){
-            var bsx = blankSquare.x;
-            var bsy = blankSquare.y;
+        /**
+         * Shuffle the grid
+         *
+         * @param blankSquare The initial blank square
+         */
+        function shuffle( blankSquare ) {
             var times = 0;
             var rand;
             var tar;
             var validSquares;
+
+            var originalAnimate = options.animate;
+            options.animate = false;
             
-            while ( times < 100 ) {
+            // TODO: Find a better algorithm for shuffling
+            while ( times < 1000 ) {
                 //Check which neighbouring squares are valid
-                validSquares = [];
-                if ( withinBounds( bsx + 1 ) ) validSquares.push({x:1,y:0});
-                if(withinBounds(bsx-1)) validSquares.push({x:-1,y:0});
-                if(withinBounds(bsy+1)) validSquares.push({x:0,y:1});
-                if(withinBounds(bsy-1)) validSquares.push({x:0,y:-1});
+                validSquares = getAdjacentSquares( blankSquare.coordinate.x, blankSquare.coordinate.y );
                 
-                rand = Math.floor(Math.random()*validSquares.length);
+                rand = Math.floor( Math.random() * validSquares.length );
                 
-                //Temporarily override animation option
-                animate = false;
-                swapSquares({x:bsx+validSquares[rand].x,y:bsy+validSquares[rand].y}, {x:bsx,y:bsy});
-                animate = options.animate;
-                
-                bsy+=validSquares[rand].y;
-                bsx+=validSquares[rand].x;
+                swapSquares( validSquares[ rand ].coordinate, blankSquare.coordinate );
                 
                 times++;
             }
-        }
-        return this.each(function(){
-            //Initiasation function. Cut up the image.
-            numPieces = options.pieces;
             
+            options.animate = originalAnimate;
+        }
+        
+        return this.each( function() {
+            // Initiasation function. Cut up the image.
+            numPieces = options.pieces;
+
             imageWidth = $(this).width();
             imageHeight = $(this).height();
             
-            pieceWidth = imageWidth / numPieces;
-            pieceHeight = imageHeight / numPieces;
+            pieceWidth = imageWidth / numPieces[ 0 ];
+            pieceHeight = imageHeight / numPieces[ 1 ];
             
-            grid = new Array(numPieces);
-            for(var y=0;y<numPieces;y++){
-                grid[y] = new Array(numPieces);
-                for(var x=0;x<numPieces;x++){
+            // Define our grid
+            grid = [];
+            
+            for ( var x = 0; x < numPieces[ 0 ]; x++ ) {
+                grid.push( [] );
+                for ( var y = 0; y < numPieces[ 1 ]; y++ ) {
                     var dimensions = { width : pieceWidth, height : pieceHeight };
                     var coordinate = { x : x, y : y };
                     
                     var obj = new PuzzleSquare( dimensions, coordinate, $(this).attr( "src" ) );
+
+           //         obj.bind( "click", moveSquare );
                     
-                    // TODO: want to make dom private
-                    obj.dom.click( moveSquare );
-                    
-                    grid[y][x] = obj;
+                    grid[ x ].push( obj );
                 }
             }
             //Turn the final piece into the blank square.
-            grid[numPieces-1][numPieces-1].makeBlank();
-            shuffle({x:numPieces-1,y:numPieces-1});
+            grid[ numPieces[ 0 ] - 1 ][ numPieces[ 1 ] - 1 ].makeBlank();
+            shuffle( grid[ numPieces[ 0 ] - 1 ][ numPieces[ 1 ] - 1 ] );
             var collection = $("<div></div>");
             
             collection.css({ "position": "relative",
@@ -154,10 +191,12 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
                              "width"  : imageWidth+"px" });
             $.each(grid, function(row){
                 $.each(this, function(col){
-                    // TODO don't abuse dom access
-                    collection.append(this.dom);
+                    this.addToDom( collection );
                 });
             });
+            
+            collection.bind( "click", moveSquare );
+            
             $(this).replaceWith(collection);
         });
     };
