@@ -1,0 +1,11 @@
+{
+    "source" : {
+        "include" : [ "src" ],
+        "includePattern" : ".+\\.js(doc)?$",
+        "excludePattern" : "(^|\\/|\\\\)_"
+    },
+    "opts" : {
+        "private" : true,
+        "destination" : "./doc/"
+    }
+}
