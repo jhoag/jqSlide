@@ -1,25 +1,65 @@
-define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
-    
+define( [ "jquery", "PuzzleSquare" ], /** @lends Puzzle */ function( $, PuzzleSquare ) {
+    /**
+     * Handles converting an img tag into a sliding puzzle and powering the puzzle.
+     *
+     * @class
+     * @param {Boolean} animated - Should the motion of the puzzle pieces be animated
+     * @param {Integer[]} numPieces - An array representing the number of pieces to divide the puzzle up into. [ X, Y ]
+     * @param {HTMLElement} domObject - A reference to the img to feed the puzzle
+     */
     function Puzzle( animated, numPieces, domObject ) {
+        /**
+         * The number of pieces in the puzzle - horizontally
+         * @type {Integer}
+         * @private
+         */
         this._numPiecesX = numPieces[ 0 ];
+        
+        /**
+         * The number of pieces in the puzzle - vertically
+         * @type {Integer}
+         * @private 
+         */
         this._numPiecesY = numPieces[ 1 ];
         
+        /**
+         * A clone of the original dom node passed into this object
+         * @type {HTMLElement}
+         * @private
+         */
         this._$originalDom = $( domObject ).clone();
+        
+        /**
+         * The dom node which this Puzzle renders to
+         * @type {HTMLElement}
+         * @private
+         */
         this._$dom = $( domObject );
         
+        /**
+         * Is animation enabled for this Puzzle
+         * @type {Boolean}
+         * @private
+         */
         this._animated = animated;
         
         // Set up the grid
+        /**
+         * Grid of puzzle pieces
+         * @type {PuzzlePiece[]}
+         * @private 
+         */
         this._grid = [];
         
-        this.initialise();
-        this.shuffle();
+        this._initialise();
+        this._shuffle();
     }
     
     /**
-     * Initialise the puzzle - set up the grid and create the initial blank square
+     * Slice the image into the sliding puzzle pieces and set up the initial grid.
+     * @private
      */
-    Puzzle.prototype.initialise = function () {
+    Puzzle.prototype._initialise = function () {
         var pieceDimensions = { width  : this._$dom.width()  / this._numPiecesX,
                                 height : this._$dom.height() / this._numPiecesY };
 
@@ -42,8 +82,9 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
 
     /**
      * Shuffle the grid
+     * @private
      */
-    Puzzle.prototype.shuffle = function () {    
+    Puzzle.prototype._shuffle = function () {    
         var times = 0;
         var rand;
         var validSquares;
@@ -77,10 +118,10 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
      * Get a list of squares adjacent to the given x,y.
      * This does not include diagonal squares.
      *
-     * @param x The x coordinate to check
-     * @param y The y coordinate to check
+     * @param {Integer} x The x coordinate to check
+     * @param {Integer} y The y coordinate to check
      *
-     * @return An array of PuzzleSquares adjacent to the given coordinate
+     * @return {PuzzleSquare[]} An array of PuzzleSquares adjacent to the given coordinate
      */
     Puzzle.prototype.getAdjacentSquares = function ( x, y ) {
         var adjacentSquares = [];
@@ -108,10 +149,10 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
      * Check for a blank square in the squares adjacent to the given x,y.
      * Diagonals are not allowed.
      * 
-     * @param x The x coordinate to check
-     * @param y The y coordinate to check
+     * @param {Integer} x The x coordinate to check
+     * @param {Integer} y The y coordinate to check
      * 
-     * @return null if no blank square, {x,y} otherwise
+     * @return {PuzzleSquare} null if no blank square, an object containing x and y otherwise
      */
     Puzzle.prototype.findAdjacentBlankSquare = function( x, y ) {
         var blankSquare = null; // Initialise to null. We'll never set this if we don't find a square.
@@ -132,10 +173,10 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
     /**
      * Check if a given coordinate is within the bounds of the grid
      *
-     * @param x The x coordinate to check
-     * @param y The y coordinate to check
+     * @param {Integer} x The x coordinate to check
+     * @param {Integer} y The y coordinate to check
      * 
-     * @return true / false
+     * @return {Boolean} If the given x and y are within bounds of the grid
      */
     Puzzle.prototype.withinBounds = function ( x, y ) {
         return (    ( x >= 0 && x < this._numPiecesX )
@@ -145,8 +186,8 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
     /**
      * Swap two the PuzzleSquares at two given x,y coordinate objects
      *
-     * @param source The source coordinate for the swap
-     * @param target The target coordinate for the swap
+     * @param {Object} source The source coordinate for the swap
+     * @param {Object} target The target coordinate for the swap 
      */
     Puzzle.prototype.swapSquares = function ( source, target ) {
         // First, tell the squares to move            
@@ -160,7 +201,10 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
     }
 
     /**
-     * Set up and render the DOM element for this puzzle
+     * Set up and render the DOM element for this puzzle.  Replaces the original domObject passed in the
+     * constructor.
+     * 
+     * @return {jQuery} The new dom object
      */
     Puzzle.prototype.addToDom = function () {
         var $collection = $("<div></div>");
@@ -185,7 +229,7 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
      * This function handles checking if the hook has been registered.
      * Also handles an array of hooks
      * 
-     * @param hook The name of the hook to be fired
+     * @param {String} hook The name of the hook to be fired
      */
     Puzzle.prototype.fireHook = function ( hook ) {
         // Check some hooks have been registered
@@ -206,9 +250,9 @@ define( [ "jquery", "PuzzleSquare" ], function( $, PuzzleSquare ) {
     }
         
     /**
-     * Is the puzzle in a solved state?
+     * Is the puzzle in a solved state
      *
-     * @return True / false - is the puzzle in a solved state
+     * @return {Boolean} Is the puzzle in a solved state
      */
     Puzzle.prototype.isSolved = function () {
         var solved = true;

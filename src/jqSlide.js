@@ -4,9 +4,29 @@
 // Originally authored 08/2009 by Jake Hoggans (http://www.jakehoggans.co.uk)
 // Maintained from 08/2014 (https://github.com/jhoag/jqSlide)
 // ==========================================================================
+
+/**
+ * The jQuery plugin namespace.
+ *
+ * @external "jQuery.fn"
+ * @see {@link http://docs.jquery.com/Plugins/Authoring The jQuery Plugin Guide}
+ */
+ 
 require( [ "jqSlide" ] );
 
 define( [ "jquery", "PuzzleSquare", "Puzzle" ], function( $, PuzzleSquare, Puzzle ) {
+    /**
+    * Turn an img tag into a sliding puzzle. <br />
+    * <br />
+    * Supported operations: <br />
+    * <ul>
+    *  <li><strong>create</strong> Create a new puzzle out of an img tag</li>
+    * </ul>
+    *
+    * @function external:"jQuery.fn".jqSlide
+    * @param {string} [operation] - The operation to perform
+    * @param {object} [options] - Configuration options
+    */
     $.fn.jqSlide = function(){
         var operation;
         var options;
