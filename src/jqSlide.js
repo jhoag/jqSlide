@@ -7,11 +7,26 @@
 require( [ "jqSlide" ] );
 
 define( [ "jquery", "PuzzleSquare", "Puzzle" ], function( $, PuzzleSquare, Puzzle ) {
-    $.fn.jqSlide = function( options ){        var defaults = {
+    $.fn.jqSlide = function(){
+        var operation;
+        var options;
+                var defaults = {
             animate : true,
             pieces  : 5
         };
         
+        if ( arguments.length < 2 ) {
+            operation = "CREATE";
+            if ( arguments.length == 0 ) {
+                options = {};
+            } else {
+                options = arguments[ 0 ];
+            }
+        } else {
+            operation = arguments[ 0 ].toUpperCase();
+            options = arguments[ 1 ];
+        }
+
         options = $.extend( defaults, options );
     
         // Parse the pieces option
@@ -46,13 +61,15 @@ define( [ "jquery", "PuzzleSquare", "Puzzle" ], function( $, PuzzleSquare, Puzzl
         };
 
         return this.each( function() {
-            var myPuzzle = new Puzzle( options.animate, options.pieces, $( this ), options.hooks );
+            if ( operation == "CREATE" ) {
+                var myPuzzle = new Puzzle( options.animate, options.pieces, $( this ), options.hooks );
 
-            var $newDom = myPuzzle.addToDom();
-            $newDom.data( "jqSlide-Puzzle", myPuzzle );
+                var $newDom = myPuzzle.addToDom();
+                $newDom.data( "jqSlide-Puzzle", myPuzzle );
 
-            // TODO Should this belong in the puzzle? Probably.
-            $newDom.bind( "click", moveSquare );
+                // TODO Should this belong in the puzzle? Probably.
+                $newDom.bind( "click", moveSquare );
+            }
         });
     };
 } );
